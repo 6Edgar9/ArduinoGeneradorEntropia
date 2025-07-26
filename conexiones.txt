@@ -1,0 +1,70 @@
+Arduino hijo 1 conectado con la cámara OV7670
+
+|3v3	|	3.3	|
+|GND	|	GND	|
+|SCL	|	A5	|	resistencia de 10k a 3.3V
+|SDA	|	A4	|	resistencia de 10k a 3.3V
+|VSY9	|	D2	|
+|HRE	|	D8	|
+|PCLK	|	D12	|
+|XCLK	|	D3	|	conectado a GND con una resistencia de 1k y de esto conectado al puerto D3 con 3 resistencias en cadena de 220Ohms cada una
+|D7	|	D7	|
+|D6	|	D6	|
+|D5	|	D5	|
+|D4	|	D4	|
+|D3	|	A3	|
+|D2	|	A2	|
+|D1	|	A1	|
+|D0	|	A0	|
+|RST	|	3.3v	|
+|PWDN	|	GND	|	
+
+
+y en otro protoboar se hace la conexión de:
+
+Arduino hijo 2 
+|A4	|	5V	|
+|A5	|	5V	|
+|GND	|	GND	|
+
+- sensor de inclinación sw250D 1
+|1Salida	|	GND	|
+|2Salida	|	D2	|
+
+- sensor de inclinación sw250D 1
+|1Salida	|	GND	|
+|2Salida	|	D3	|
+
+- sensor de sonido de alta sensibilidad KY-037
+|A0	|	A0	|
+|-	|	GND	|
+|+	|	5V	|
+
+- módulo de reloj en tiempo real (RTC) DS1302
+|VCC	|	5V	|
+|GND	|	GND	|
+|CLK	|	D5	|
+|DAT	|	D6	|
+|RST	|	D7	|
+
+
+Arduino Padre
+|A4	|	resistencia 10kΩ	|
+|A5	|	resistencia 10kΩ	|
+|GND	|	GND			|
+
+- sensor de agua T1592
+|S	|	A1	|
+|+	|	5V	|
+|-	|	GND	|
+
+- SENSOR DE TEMPERATURA ANALÓGICO LM35DZ
+|VCC		|	5V	|
+|analog out	|	A0	|
+|GND		|	GND	|
+
+- sensor de inclinación MPU-6050
+|VCC	|	5V	|
+|GND	|	GND	|
+|SCL	|	A5	|
+|SDA	|	A4	|
