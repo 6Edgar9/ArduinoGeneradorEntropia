@@ -1,136 +1,126 @@
-Desarrollaremos un generador de números aleatorios de alta seguridad para aplicaciones criptográficas, inspirado en sistemas profesionales como Cloudflare, pero adaptado a componentes accesibles. El núcleo del sistema es un recipiente con glicerina y purpurina que genera patrones caóticos impredecibles. Estos patrones se monitorean con:
+# Generador de Números Aleatorios Criptográficos con Entropía Física
 
+Este proyecto desarrolla un **generador de números aleatorios de alta seguridad** para aplicaciones criptográficas, inspirado en sistemas profesionales como Cloudflare, pero utilizando componentes accesibles.
 
+El núcleo del sistema es un **recipiente con glicerina y purpurina** que genera **patrones caóticos impredecibles**, capturados y procesados para generar claves criptográficas de 256 bytes.
 
-1. Una cámara OV7670 (controlada por un Arduino UNO) que captura imágenes cada 5 segundos y extrae 64 píxeles aleatorios de ellas.
-2. Sensores de movimiento y ambiente (conectados a un segundo Arduino UNO):
+---
 
-* MPU-6050: Detecta vibraciones 3D del recipiente.
-* SW-520D (x2): Mide inclinación en ejes X/Y.
-* KY-037: Captura ruido ambiental (sonidos imperceptibles).
-* DS1302: Reloj de alta precisión para timestamps en microsegundos.
+## Componentes y Funcionamiento
 
+### 1. Captura de Entropía
 
+* **Cámara OV7670 (Nodo 1 - Arduino UNO):**
+  Captura imágenes cada 5 segundos y extrae **64 píxeles aleatorios** para generar entropía visual.
 
-Un tercer Arduino UNO (maestro) coordina el sistema:
+* **Sensores de movimiento y ambiente (Nodo 2 - Arduino UNO):**
 
-Valida que los otros dos Arduinos no hayan sido alterados (checksum de firmware).
+  * **MPU-6050:** Vibraciones 3D del recipiente.
+  * **SW-520D (x2):** Inclinación en ejes X/Y.
+  * **KY-037:** Ruido ambiental (sonidos imperceptibles).
+  * **DS1302 (RTC):** Timestamps con microsegundos.
 
-Añade su propia entropía con:
+* **Nodo Maestro (Arduino UNO):**
 
-* LM35DZ: Mide fluctuaciones térmicas mínimas (0.1°C).
-* Sensor de nivel: Detecta ondas en la superficie del fluido.
-* Ruido electrónico: Lecturas de pines analógicos desconectados.
-* Encripta todos los datos (AES-128) y los envía a una computadora.
+  * Valida que los otros nodos no hayan sido alterados (checksum de firmware SHA-256).
+  * Añade entropía propia:
 
+    * **LM35DZ:** Monitoreo de fluctuaciones térmicas mínimas (0.1°C).
+    * **Sensor de nivel:** Detecta ondas en el fluido.
+    * **Ruido electrónico:** Lecturas de pines analógicos desconectados.
+  * Cifra todos los datos con **AES-128** y los envía al PC.
 
+### 2. Procesamiento en la PC (Python)
 
-Finalmente, un script Python en la PC:
+1. Combina datos de:
 
-1. Combina los píxeles de la cámara + datos de sensores + entropía del sistema operativo.
-2. Usa el algoritmo BLAKE2b para fusionar estas fuentes en una "sopa entrópica".
-3. Genera 256 bytes de aleatoriedad verdadera (equivalentes a una clave AES-256) para aplicaciones seguras como:
+   * Cámara
+   * Sensores físicos
+   * Entropía del sistema operativo
+2. Fusión con **BLAKE2b** y generación de una “sopa entrópica”.
+3. Genera **256 bytes de aleatoriedad** equivalentes a una clave AES-256.
+4. Aplicaciones:
 
-* Claves SSH
-* Encriptación de archivos
-* Tokens de seguridad
+   * Claves SSH
+   * Encriptación de archivos
+   * Tokens de seguridad
 
+---
 
+## Lista de Materiales
 
+| Componente                          | Cantidad | Función Clave                |
+| ----------------------------------- | -------- | ---------------------------- |
+| Arduino UNO                         | 3        | Control de módulos           |
+| Cámara OV7670                       | 1        | Captura de patrones visuales |
+| MPU-6050                            | 1        | Vibraciones 3D               |
+| Sensor SW-520D                      | 2        | Medición de inclinación      |
+| KY-037                              | 1        | Ruido ambiental              |
+| DS1302 (RTC)                        | 1        | Timestamps en µs             |
+| LM35DZ                              | 1        | Monitoreo de temperatura     |
+| Sensor de nivel ultrasónico HC-SR04 | 1        | Ondas en fluido              |
+| Recipiente de vidrio                | 1        | Contenedor de glicerina      |
+| Glicerina + purpurina               | 1 set    | Medio generador de caos      |
+| LEDs blancos                        | 2        | Iluminación de cámara        |
+| Protoboard                          | 3        | Conexiones                   |
+| Resistencias 10kΩ                   | 8        | Pull-ups I2C/OV7670          |
+| Resistencias 1kΩ                    | 2        | Divisor de voltaje cámara    |
+| Resistencias 220kΩ                  | 3        | Divisor de voltaje cámara    |
+| Cables jumper                       | 60+      | Conexiones                   |
 
+---
 
+## Diagrama de Flujo de Operación
 
+```
+[Fluido] → Patrones caóticos
+├─> [Cámara] → (64 píxeles aleatorios) → [PC vía USB]
+├─> [Sensores UNO] → (vibración + inclinación + sonido + tiempo) → [Maestro vía I2C]
+└─> [Maestro UNO] → (temperatura + nivel + ruido) + Validación → [PC vía USB]
 
-Lista Completa de Materiales
+[PC] → Fusión Python → Clave criptográfica (256 bytes)
+```
 
-Componente	Cantidad	Función Clave
+---
 
-Arduino UNO	3	Control de módulos
+## Asignación de Tareas
 
-Cámara OV7670	1	Captura de patrones visuales
+### Integración Física
 
-MPU-6050	1	Detección de vibraciones 3D
+* Montaje de sensores en el recipiente (MPU-6050 y SW-520D).
+* Instalación de cámara y LEDs para iluminación uniforme.
+* Creación de circuito divisor de voltaje para la OV7670.
 
-Sensor SW-520D	2	Medición de inclinación
+### Programación Arduino
 
-KY-037	1	Captura de ruido ambiental
+* **Nodo Cámara:** Captura de imágenes y extracción de píxeles aleatorios.
+* **Nodo Sensores:** Muestreo sincronizado de vibraciones, inclinación, sonido y timestamps.
+* **Nodo Maestro:** Validación de firmware, cifrado AES de datos, generación de ruido analógico.
 
-DS1302 (RTC)	1	Timestamps de µs
+### Software Python
 
-LM35DZ	1	Monitoreo de temperatura
+* Receptor serial para nodos cámara y maestro.
+* Algoritmo de fusión entrópica (BLAKE2b + `secrets`).
+* Pruebas NIST para verificación de aleatoriedad.
 
-Sensor de nivel ultrasónico HC-SR04	1	Detección de ondas en fluido
+### Pruebas de Seguridad
 
-Recipiente de vidrio	1	Contenedor de glicerina
+* Termómetro infrarrojo para validar LM35DZ.
+* Generación de 10,000 claves para análisis de distribución.
 
-Glicerina + purpurina	1 set	Medio generador de caos
+---
 
-LEDs blancos	2	Iluminación para cámara
+## Innovaciones Clave
 
-Protoboard	3	Conexiones
+* **Detección de sabotaje:** Maestro activa LED si checksum no coincide.
+* **Entropía térmica:** Fluctuaciones de ±0.1°C.
+* **Fusión multimodal:** Combina 8 fuentes de entropía (visual, física, digital).
 
-Resistencias 10kΩ	8	Pull-ups I2C/OV7670
+---
 
-Resistencias 1kΩ	2	Divisor de voltaje para cámara
+#### Dios, Assembly y la Patria
+#### Edrem
 
-Resistencias de 220kΩ	3	Divisor de voltaje para cámara
+---
 
-Cables jumper	60+	Conexiones
-
-
-
-Diagrama de Flujo de Operación
-
-\[Fluido] → Patrones caóticos
-
-├─> \[Cámara] → (64 píxeles aleatorios) → \[PC vía USB]
-
-├─> \[Sensores UNO] → (vibraciones + inclinación + sonido + tiempo) → \[Maestro vía I2C]
-
-└─> \[Maestro UNO] → (temperatura + nivel + ruido) + Validación → \[PC vía USB]
-
-↓
-
-\[PC] → Fusión Python → Clave criptográfica (256 bytes)
-
-
-
-Asignación de Tareas Clave
-
-1. Integración física:
-
-* Montar sensores en el recipiente (MPU-6050 y SW-520D pegados al vidrio).
-* Instalar cámara y LEDs para iluminación uniforme.
-* Crear circuito divisor de voltaje para la OV7670.
-
-2\. Programación Arduino:
-
-* Nodo Cámara: Captura de imágenes y extracción de píxeles aleatorios.
-* Nodo Sensores: Muestreo sincronizado de 4 sensores + timestamp.
-* Nodo Maestro:
-*  	Validación de firmware (checksum SHA-256).
-*  	Cifrado AES de datos.
-*  	Generación de ruido analógico.
-
-
-
-3\. Software Python:
-
-* Receptor serial para dos puertos USB (cámara + maestro).
-* Algoritmo de fusión entrópica (BLAKE2b + librería secrets).
-* Pruebas NIST para verificar aleatoriedad.
-
-
-
-4\. Pruebas de seguridad:
-
-* Termómetro infrarrojo para verificar que LM35DZ reporta valores reales.
-* Generar 10,000 claves y analizar su distribución.
-
-
-
-Innovaciones Clave
-
-* Detección de sabotaje: Si el checksum de firmware no coincide, el maestro activa un LED de alarma.
-* Entropía térmica: El LM35DZ detecta cambios de ±0.1°C (imposible de predecir).
-* Fusión multimodal: Combina 8 fuentes de entropía (física/visual/digital).
+Desarrollado con fines académicos y de práctica en Python.
